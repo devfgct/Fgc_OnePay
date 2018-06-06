@@ -1,14 +1,12 @@
 <?php
 
-
 namespace Efom\OnePay\Controller\Order;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Model\ScopeInterface;
 
-class International extends \Magento\Framework\App\Action\Action
-{
+class International extends \Magento\Framework\App\Action\Action {
 	protected $resultPageFactory;
 	protected $jsonFac;
 	/** @var  \Magento\Sales\Model\Order */
@@ -20,7 +18,6 @@ class International extends \Magento\Framework\App\Action\Action
 	/** @var  \Magento\Checkout\Model\Session */
 	protected $checkoutSession;
 
-
 	public function __construct(
 		Context $context,
 		PageFactory $resultPageFactory,
@@ -29,8 +26,7 @@ class International extends \Magento\Framework\App\Action\Action
 		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
 		\Magento\Store\Model\StoreManagerInterface $storeManager,
 		\Magento\Checkout\Model\Session $checkoutSession
-	)
-	{
+	) {
 		parent::__construct($context);
 		$this->resultPageFactory = $resultPageFactory;
 		$this->jsonFac = $json;
@@ -40,24 +36,18 @@ class International extends \Magento\Framework\App\Action\Action
 		$this->checkoutSession = $checkoutSession;
 	}
 
-	public function execute()
-	{
-
-
-
+	public function execute() {
 		$id = $this->getRequest()->getParam('order_id',0);
 		$order = $this->order->load(intval($id));
 		//$url = "https://mtf.onepay.vn/vpcpay/vpcpay.op?";
 		$url = $this->scopeConfig->getValue('payment/onepayinternational/payment_url')."?";
-		if($order->getId())
-		{
+		if($order->getId()) {
 			$incrementID = $order->getIncrementId();
-
-
 			$returnUrl = $this->storeManager->getStore()->getBaseUrl();
 			$returnUrl = rtrim($returnUrl,"/");
 			$returnUrl .= "/efomonepay/order/payInternational";
 			$md5HashData = '';
+			$address = $order->getShippingAddress();
 			$arrParams = [
 				'vpc_Version'=>'2',
 				//'vpc_Currency'=>'VND',
@@ -72,21 +62,20 @@ class International extends \Magento\Framework\App\Action\Action
 				'vpc_TicketNo'=>$order->getRemoteIp(),
 				'AgainLink'=> $this->storeManager->getStore()->getBaseUrl().'/checkout',
 				'Title'=>'OnePAY Payment Gateway',
-				'AVS_Street01'=> count($order->getShippingAddress()->getStreet()) > 0 ? $order->getShippingAddress()->getStreet()[0] : '',
-				'AVS_City'=>$order->getShippingAddress()->getCity(),
-				'AVS_StateProv'=>$order->getShippingAddress()->getRegion(),
+				'AVS_Street01'=> ($address && count($address->getStreet()) > 0) ? $address->getStreet()[0] : '',
+				'AVS_City'=> $address ? $address->getCity() : '',
+				'AVS_StateProv'=> $address ? $address->getRegion() : '',
 				//'AVS_PostCode'=>'084',
 				'vpc_Customer_Email'=>$order->getCustomerEmail(),
 				//'vpc_Customer_Id'=>$order->getCustomerId() ? $order->getCustomerId() : 'customer-id-unknown',
-				'vpc_Customer_Phone'=>$order->getShippingAddress()->getTelephone()
-				//'vpc_SHIP_City'=>$order->getShippingAddress()->getCity(),
+				'vpc_Customer_Phone'=> $address ? $address->getTelephone() : '',
+				//'vpc_SHIP_City'=>$address->getCity(),
 				//'vpc_SHIP_Country'=>'VN',
-				//'vpc_SHIP_Provice'=>$order->getShippingAddress()->getRegion(),
-				//'vpc_SHIP_Street01'=>$order->getShippingAddress()->getName()
+				//'vpc_SHIP_Provice'=>$address->getRegion(),
+				//'vpc_SHIP_Street01'=>$address->getName()
 			];
 			ksort ($arrParams);
-			foreach($arrParams as $key=>$value)
-			{
+			foreach($arrParams as $key=>$value) {
 				$url .= urlencode($key)."=".urlencode($value)."&";
 				if ((strlen($value) > 0) && ((substr($key, 0,4)=="vpc_") || (substr($key,0,5) =="user_"))) {
 					$md5HashData .= $key . "=" . $value . "&";
@@ -97,8 +86,6 @@ class International extends \Magento\Framework\App\Action\Action
 			$hash = strtoupper(hash_hmac('SHA256', $md5HashData, pack('H*',$SECURE_SECRET)));
 			$vpcURL = "vpc_SecureHash=" . $hash;
 			$url .= $vpcURL;
-
-
 		}
 
 		$this->jsonFac->setData($url);

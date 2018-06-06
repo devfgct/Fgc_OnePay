@@ -4,8 +4,7 @@ namespace Efom\OnePay\Controller\Order;
 
 use Magento\Framework\App\Action\Context;
 
-class Pay extends \Magento\Framework\App\Action\Action
-{
+class Pay extends \Magento\Framework\App\Action\Action {
 	/** @var  \Magento\Sales\Model\Order */
 	protected $order;
 	/** @var  \Magento\Checkout\Model\Session */
@@ -15,13 +14,14 @@ class Pay extends \Magento\Framework\App\Action\Action
 	public function __construct( Context $context,
 		\Magento\Sales\Model\Order $order,
 		\Magento\Checkout\Model\Session $checkoutSession,
-		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-		)
-	{
+		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+		\Magento\Framework\Event\Manager $eventManager
+	) {
 		parent::__construct( $context );
 		$this->order = $order;
 		$this->checkoutSession = $checkoutSession;
 		$this->scopeConfig = $scopeConfig;
+		$this->eventManager = $eventManager;
 	}
 
 	/**
@@ -29,34 +29,28 @@ class Pay extends \Magento\Framework\App\Action\Action
      *
      * @return \Magento\Framework\Controller\ResultInterface
      */
-    public function execute()
-    {
+    public function execute() {
     	$vpc_TxnResponseCode = $this->getRequest()->getParam('vpc_TxnResponseCode','');
     	$isSuccess = false;
-    	//if($vpc_TxnResponseCode == "0")
-	    //{
+    	//if($vpc_TxnResponseCode == "0") {
 	    	//check hash
 		    $responseHash = $this->getRequest()->getParam('vpc_SecureHash','');
 		    $SECURE_SECRET = $this->scopeConfig->getValue('payment/onepay/hash_code');
 		    $responseParams = $this->getRequest()->getParams();
 		    ksort ($responseParams);
 		    $md5HashData = '';
-		    foreach($responseParams as $key=>$value)
-		    {
+		    foreach($responseParams as $key=>$value) {
 			    if ( $key != "vpc_SecureHash" && strlen($value) > 0 && ((substr($key, 0,4)=="vpc_") || (substr($key,0,5) =="user_"))) {
 				    $md5HashData .= $key . "=" . $value . "&";
 			    }
 		    }
 		    $md5HashData = rtrim($md5HashData, "&");
 		    $hash = strtoupper(hash_hmac('SHA256', $md5HashData, pack('H*',$SECURE_SECRET)));
-		    if($hash == strtoupper($responseHash) && $vpc_TxnResponseCode == "0")
-		    {
+		    if($hash == strtoupper($responseHash) && $vpc_TxnResponseCode == "0") {
 			    $vpc_MerchTxnRef = $this->getRequest()->getParam('vpc_MerchTxnRef','000000000');
 			    $order = $this->order->loadByIncrementId($vpc_MerchTxnRef);
-			    if($order->getId())
-			    {
-				    if($this->checkoutSession->getLastOrderId() == $order->getId())
-				    {
+			    if($order->getId()) {
+				    if($this->checkoutSession->getLastOrderId() == $order->getId()) {
 					    $amount = $this->getRequest()->getParam('vpc_Amount','0');
 					    $order->setTotalPaid(floatval($amount)/100);
 					    $order->setStatus($order::STATE_PAYMENT_REVIEW); //STATE_PROCESSING STATE_PAYMENT_REVIEW
@@ -67,10 +61,8 @@ class Pay extends \Magento\Framework\App\Action\Action
 		    } else {
 				$vpc_MerchTxnRef = $this->getRequest()->getParam('vpc_MerchTxnRef','000000000');
 			    $order = $this->order->loadByIncrementId($vpc_MerchTxnRef);
-			    if($order->getId())
-			    {
-				    if($this->checkoutSession->getLastOrderId() == $order->getId())
-				    {
+			    if($order->getId()) {
+				    if($this->checkoutSession->getLastOrderId() == $order->getId()) {
 					    $amount = $this->getRequest()->getParam('vpc_Amount','0');
 					    $order->setTotalPaid(floatval($amount)/100);
 					    //$order->setStatus($order::STATE_PAYMENT_REVIEW);
@@ -80,33 +72,22 @@ class Pay extends \Magento\Framework\App\Action\Action
 					    //$isSuccess = false;
 				    }
 			    }
-			
 			}
-
-
 	    //}
-
-
-	    if(!$isSuccess)
-	    {
+		$this->eventManager->dispatch('onepay_payment_status', ['status' => $isSuccess, 'order' => $order]);
+	    if(!$isSuccess) {
 	    	$this->messageManager->addError(
 	    		'Thanh toán OnePay thất bại. '. $this->getResponseDescription($vpc_TxnResponseCode)
 		    );
 			return $this->resultRedirectFactory->create()->setPath('checkout/onepage/failure');
-	    }
-	    else{
+	    } else {
 		    $this->messageManager->addSuccess('Đã thanh toán thành công bằng OnePay thẻ ATM nội địa');
 			return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
 	    }
-
-
-
 	    //return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
-
     }
 	
 	public function getResponseDescription($responseCode) {
-	
 		switch ($responseCode) {
 			case "0" :
 				$result = "Giao dịch thành công - Approved";
@@ -158,7 +139,4 @@ class Pay extends \Magento\Framework\App\Action\Action
 		}
 		return $result;
 	}
-
-	
-	
 }

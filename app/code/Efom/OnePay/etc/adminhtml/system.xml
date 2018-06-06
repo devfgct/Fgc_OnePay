@@ -57,8 +57,6 @@
                        sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Hash Code</label>
                 </field>
-
-
             </group>
 
             <group id="onepayinternational" translate="label" type="text"
@@ -116,10 +114,21 @@
                        sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Hash Code</label>
                 </field>
-
-
             </group>
 
+            <group id="onepay_email_template" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>OnePay Email template</label>
+                <field id="order_success" translate="label comment" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Order Success Template</label>
+                    <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
+                    <source_model>Efom\OnePay\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="order_fail" translate="label comment" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Order Fail Template</label>
+                    <comment>Email template chosen based on theme fallback when "Default" option is selected.</comment>
+                    <source_model>Efom\OnePay\Model\Config\Source\Email\Template</source_model>
+                </field>
+            </group>
         </section>
     </system>
 </config>

@@ -149,7 +149,7 @@ define(
                                 self.isPlaceOrderActionAllowed(true);
                             }).done(function (orderID) {
                                 $.ajax({
-                                    url:'https://yvesrocher.vn/vn/efomonepay/order/info?order_id='+orderID
+                                    url:window.location.origin+'/efomonepay/order/info?order_id='+orderID
                                 }).done(function (url) {
                                     window.location.replace(url);
                                 }).fail(function (err) {

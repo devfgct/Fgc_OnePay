@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Email/etc/email_templates.xsd">
+	<template id="onepay_order_success" label="Email Template for order success" file="order_success.html" type="html" module="Efom_OnePay" area="frontend" />
+	<template id="onepay_order_fail" label="Email Template for order fail" file="order_fail.html" type="html" module="Efom_OnePay" area="frontend" />
+</config>

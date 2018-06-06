@@ -19,7 +19,10 @@
                 <allowspecific>0</allowspecific>
                 <group>offline</group>
             </onepayinternational>
-
+            <!-- <onepay_email_template>
+                <order_success></order_success>
+                <order_fail></order_fail>
+            </onepay_email_template> -->
         </payment>
     </default>
 </config>

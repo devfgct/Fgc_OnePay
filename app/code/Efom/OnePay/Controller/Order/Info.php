@@ -40,19 +40,13 @@ class Info extends \Magento\Framework\App\Action\Action
 		$this->checkoutSession = $checkoutSession;
 	}
 
-	public function execute()
-	{
-
-
-
+	public function execute() {
 		$id = $this->getRequest()->getParam('order_id',0);
 		$order = $this->order->load(intval($id));
 		//$url = "https://mtf.onepay.vn/onecomm-pay/vpc.op?";
 		$url = $this->scopeConfig->getValue('payment/onepay/payment_url')."?";
-		if($order->getId())
-		{
+		if($order->getId()) {
 			$incrementID = $order->getIncrementId();
-
 
 			$returnUrl = $this->storeManager->getStore()->getBaseUrl();
 			$returnUrl = rtrim($returnUrl,"/");
@@ -76,8 +70,7 @@ class Info extends \Magento\Framework\App\Action\Action
 				'Title'=>'OnePAY Payment Gateway'
 			];
 			ksort ($arrParams);
-			foreach($arrParams as $key=>$value)
-			{
+			foreach($arrParams as $key=>$value) {
 				$url .= urlencode($key)."=".urlencode($value)."&";
 				if ((strlen($value) > 0) && ((substr($key, 0,4)=="vpc_") || (substr($key,0,5) =="user_"))) {
 					$md5HashData .= $key . "=" . $value . "&";
