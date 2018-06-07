@@ -10,24 +10,29 @@ class Run {
     public function __construct(
 		\Magento\Framework\ObjectManagerInterface $objectManager,
 		\Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
-		\Magento\Framework\Event\Manager $eventManager
+		\Magento\Framework\Event\Manager $eventManager,
+		\Psr\Log\LoggerInterface $logger
     ) {
 		$this->_objectManager = $objectManager;
 		$this->_orderCollectionFactory = $orderCollectionFactory;
 		$this->_eventManager = $eventManager;
+		$this->_logger = $logger;
     }
 
     public function execute() {
 		$orderCollection = $this->_orderCollectionFactory->create()->addAttributeToSelect('*');
 		$orderCollection->addFieldToFilter('status', 'onepay_exit');
 		foreach ($orderCollection as $order) {
-			$data = $order->getData();
+			$orderId = $order->getId();
 			$created_at = $order->getCreatedAt();
 			if(time() - strtotime($created_at) > 900) {
 				$order->setStatus("payment_oenpay_fail");
 				$order->save();
 				$this->eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
+				$message = "OnePay: Set orderId {$orderId} to status 'onepay_payment_status'.";
 			}
+			$message = "OnePay: ignore orderId {$orderId}.";
+			$this->_logger->info($message);
 			continue;
 		}
         return $this;
