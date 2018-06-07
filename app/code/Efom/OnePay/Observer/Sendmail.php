@@ -20,18 +20,17 @@ class Sendmail implements ObserverInterface {
 		\Magento\Framework\App\RequestInterface $request,
 		\Efom\OnePay\Helper\Data $helper,
 
-		//\Magento\Sales\Model\Order\Email\Container\Template $templateContainer,
-        //\Magento\Sales\Model\Order\Email\Container\IdentityInterface $identityContainer,
-        //\Magento\Sales\Model\Order\Email\SenderBuilderFactory $senderBuilderFactory,
-        //\Magento\Sales\Model\Order\Address\Renderer $addressRenderer,
-        \Psr\Log\LoggerInterface $logger
+		\Magento\Framework\App\Filesystem\DirectoryList $dir,
+		\Psr\Log\LoggerInterface $logger
 	) {
 		$this->_coreRegistry = $coreRegistry;
 		$this->_authSession = $authSession;
 		$this->_customerSession = $customerSession;
 		$this->_request = $request;
 		$this->_helper = $helper;
-        $this->_logger = $logger;
+        $this->_dir = $dir;
+		$this->_logger = $logger;
+		$this->_logger->pushHandler(new \Monolog\Handler\StreamHandler($this->_dir->getRoot().'/var/log/onepay_cron.log'));
         $this->_orderStatus = null;
 	}
     public function execute(\Magento\Framework\Event\Observer $observer) {
@@ -56,12 +55,15 @@ class Sendmail implements ObserverInterface {
 
 			if($event->getName()=='onepay_payment_status') {
 				$this->_orderStatus = $event->getStatus();
-				$this->checkAndSend($order);
+                $this->checkAndSend($order);
+                
+                $message = "Run at ".date('Y-m-d H:i:s', time());
+                $this->_logger->info($message);
 			} elseif(in_array($this->_paymentCode, $this->_paymentList) && $status == 'payment_onepay_fail') {
+                return;
                 // Use if event not working in cronjob
                 $this->_orderStatus = false;
                 $this->checkAndSend($order);
-                return;
             }
 			return;
 			/** New order

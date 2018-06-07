@@ -11,12 +11,15 @@ class Run {
 		\Magento\Framework\ObjectManagerInterface $objectManager,
 		\Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
 		\Magento\Framework\Event\Manager $eventManager,
+		\Magento\Framework\App\Filesystem\DirectoryList $dir,
 		\Psr\Log\LoggerInterface $logger
     ) {
 		$this->_objectManager = $objectManager;
 		$this->_orderCollectionFactory = $orderCollectionFactory;
 		$this->_eventManager = $eventManager;
+		$this->_dir = $dir;
 		$this->_logger = $logger;
+		$this->_logger->pushHandler(new \Monolog\Handler\StreamHandler($this->_dir->getRoot().'/var/log/onepay.log'));
     }
 
     public function execute() {
@@ -29,10 +32,11 @@ class Run {
 				$order->setStatus("payment_onepay_fail");
 				$order->save();
 				// event not working
-				// $this->eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
+				$this->_eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
 				$message = "OnePay: Set orderId {$orderId} to status 'onepay_payment_status'.";
+			} else {
+				$message = "OnePay: ignore orderId {$orderId} ({$created_at}).";
 			}
-			$message = "OnePay: ignore orderId {$orderId} ({$created_at}).";
 			$this->_logger->info($message);
 			continue;
 		}

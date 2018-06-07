@@ -59,11 +59,12 @@ class Console extends Command {
 			if(time() - strtotime($created_at) > 900) {
 				//$order->setStatus("payment_onepay_fail");
 				//$order->save();
-				//$eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
+				$eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
 				$message = "OnePay: Set orderId {$orderId} to status 'onepay_payment_status'.";
+			} else {
+				$message = "OnePay: ignore orderId {$orderId} ({$created_at}).";
 			}
-			$message = "OnePay: ignore orderId {$orderId} ({$created_at}).";
-			$this->output->writeln('<info>Action: '.$message.'</info>');
+			$this->output->writeln('<info>'.$message.'</info>');
 			continue;
 		}
 	}
