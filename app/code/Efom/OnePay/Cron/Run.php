@@ -41,7 +41,7 @@ class Run {
 			}
 			$this->_logger->info("[OnePay] {$message}");
 		}
-		$message = "Finished run at ".date('Y-m-d H:i:s', time())."\n";
+		$message = "Finished run at ".date('Y-m-d H:i:s', time())."";
 		$this->_logger->info("[OnePay] {$message}");
         return $this;
     }
