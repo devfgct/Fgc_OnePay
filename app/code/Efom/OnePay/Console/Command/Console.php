@@ -23,8 +23,9 @@ class Console extends Command {
 	protected function configure() {
 		$this->setName('onepay:test')->setDescription('');
 		$this->addArgument('action', InputArgument::OPTIONAL, 'Type action', 'test');
-		$this->addOption('sku', 'sku', InputOption::VALUE_REQUIRED, 'Product SKU', '01');
-		$this->addOption('limit', 'limit', InputOption::VALUE_REQUIRED, 'Product SKU', null);
+		$this->addOption('id', 'id', InputOption::VALUE_REQUIRED, 'ID');
+		$this->addOption('sku', 'sku', InputOption::VALUE_REQUIRED, 'Product SKU');
+		$this->addOption('limit', 'limit', InputOption::VALUE_REQUIRED, 'Limit', null);
 		parent::configure();
 	}
 
@@ -44,6 +45,30 @@ class Console extends Command {
 		}
 	}
 	
+	protected function getAllOrder() {
+		$eventManager = $this->_objectManager->create(\Magento\Framework\Event\Manager::class);
+		$orderCollectionFactory = $this->_objectManager->create(\Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class);
+		$orderCollection = $orderCollectionFactory->create()->addAttributeToSelect('*');
+		$orderCollection->addFieldToFilter('status', 'payment_oenpay_fail');
+		echo "Found ".count($orderCollection)." orders\n";
+		foreach ($orderCollection as $order) {
+			$data = $order->getData();
+			$created_at = $order->getCreatedAt();
+			if(time() - strtotime($created_at) > 900) {
+				$order->setStatus("payment_oenpay_fail");
+				$order->save();
+				$eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
+			}
+			continue;
+		}
+	}
+	protected function getOrder() {
+		$orderId = $this->input->getOption('id');
+		$order = $this->_objectManager->create(\Magento\Sales\Api\Data\OrderInterface::class)->loadByIncrementId($orderId);
+		//$order = $this->_objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
+		$data = $order->getData();
+		var_dump($data);
+	}
 	protected function getPathModule() {
 		$componentRegistrar = $this->_objectManager->create('\Magento\Framework\Component\ComponentRegistrarInterface');
 		$path = $componentRegistrar->getPath(\Magento\Framework\Component\ComponentRegistrar::MODULE, $moduleName = 'Efom_OnePay');

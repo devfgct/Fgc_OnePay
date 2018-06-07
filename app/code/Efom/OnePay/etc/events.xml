@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <!-- <event name="sales_order_save_after">
+    <event name="sales_order_save_after">
         <observer name="onepay_sales_order_save_after" instance="Efom\OnePay\Observer\Sendmail" />
-    </event> -->
+    </event>
     <event name="onepay_payment_status">
         <observer name="onepay_payment_status" instance="Efom\OnePay\Observer\Sendmail" />
     </event>

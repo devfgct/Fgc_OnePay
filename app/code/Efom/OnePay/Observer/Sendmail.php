@@ -56,7 +56,10 @@ class Sendmail implements ObserverInterface {
 			if($event->getName()=='onepay_payment_status') {
 				$this->_orderStatus = $event->getStatus();
 				$this->checkAndSend($order);
-			}
+			} elseif(in_array($this->_paymentCode, $this->_paymentList)) {
+                // Disable send mail
+                return;
+            }
 			return;
 			/** New order
 			 * Fatal error: Uncaught Error: Call to a member function formatPrice() on null in 
