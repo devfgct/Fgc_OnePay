@@ -30,7 +30,7 @@ class Sendmail implements ObserverInterface {
 		$this->_helper = $helper;
         $this->_dir = $dir;
 		$this->_logger = $logger;
-		$this->_logger->pushHandler(new \Monolog\Handler\StreamHandler($this->_dir->getRoot().'/var/log/onepay_cron.log'));
+		//$this->_logger->pushHandler(new \Monolog\Handler\StreamHandler($this->_dir->getRoot().'/var/log/onepay.log'));
         $this->_orderStatus = null;
 	}
     public function execute(\Magento\Framework\Event\Observer $observer) {
@@ -53,12 +53,12 @@ class Sendmail implements ObserverInterface {
 			$method = $payment->getMethodInstance();
 			$this->_paymentCode = $method->getCode();
 
-			if($event->getName()=='onepay_payment_status') {
+			if($event->getName() == 'onepay_payment_status') {
 				$this->_orderStatus = $event->getStatus();
                 $this->checkAndSend($order);
-                
-                $message = "Run at ".date('Y-m-d H:i:s', time());
-                $this->_logger->info($message);
+
+                $message = "Send order email orderId ".$order->getId() .' (#'. $order->getIncrementId() .')';
+                $this->_logger->info("[OnePay] {$message}");
 			} elseif(in_array($this->_paymentCode, $this->_paymentList) && $status == 'payment_onepay_fail') {
                 return;
                 // Use if event not working in cronjob
@@ -66,14 +66,6 @@ class Sendmail implements ObserverInterface {
                 $this->checkAndSend($order);
             }
 			return;
-			/** New order
-			 * Fatal error: Uncaught Error: Call to a member function formatPrice() on null in 
-			 * vendor/magento/module-weee/view/frontend/templates/email/items/price/row.phtml on line 25
-			 */
-			if($origData && $origData['state'] != 'complete' && $state == 'complete') {
-				// $this->checkAndSend($order);
-			}
-			if($origData) $this->checkAndSend($order);
 		}
 		return $this;
 	}
@@ -89,7 +81,8 @@ class Sendmail implements ObserverInterface {
             $sender->send();
             $sender->sendCopyTo();
         } catch (\Exception $e) {
-            $this->_logger->error($e->getMessage());
+            $message = $e->getMessage();
+            $this->_logger->error("[OnePay] {$message}");
         }
         return true;
     }

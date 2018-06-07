@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
         <job name="onepay_check_order_fail" instance="Efom\OnePay\Cron\Run" method="execute">
-            <schedule>* * * * *</schedule> <!-- Run every 1 mins -->
+            <schedule>*/5 * * * *</schedule> <!-- Run every 5 mins -->
         </job>
     </group>
 </config>

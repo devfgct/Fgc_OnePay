@@ -49,9 +49,9 @@ class Console extends Command {
 		$eventManager = $this->_objectManager->create(\Magento\Framework\Event\Manager::class);
 		$logger = $this->_objectManager->create(\Psr\Log\LoggerInterface::class);
 		$orderCollectionFactory = $this->_objectManager->create(\Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class);
-		$orderCollection = $orderCollectionFactory->create()->addAttributeToSelect('*');
-		//$orderCollection->addFieldToFilter('status', 'payment_oenpay_fail');
-		$orderCollection->addFieldToFilter('status', 'onepay_exit');
+		$orderCollection = $orderCollectionFactory->create()->addAttributeToSelect('*')->setPageSize(5);
+		$orderCollection->addFieldToFilter('status', 'payment_onepay_fail');
+		//$orderCollection->addFieldToFilter('status', 'onepay_exit');
 		echo "Found ".count($orderCollection)." orders\n";
 		foreach ($orderCollection as $order) {
 			$orderId = $order->getId();
@@ -60,7 +60,7 @@ class Console extends Command {
 				//$order->setStatus("payment_onepay_fail");
 				//$order->save();
 				$eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
-				$message = "OnePay: Set orderId {$orderId} to status 'onepay_payment_status'.";
+				$message = "OnePay: Set orderId {$orderId} to status 'payment_onepay_fail'.";
 			} else {
 				$message = "OnePay: ignore orderId {$orderId} ({$created_at}).";
 			}
