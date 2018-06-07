@@ -32,8 +32,7 @@ class PayInternational extends \Magento\Framework\App\Action\Action {
     public function execute() {
     	$vpc_TxnResponseCode = $this->getRequest()->getParam('vpc_TxnResponseCode','');
     	$isSuccess = false;
-    	//if($vpc_TxnResponseCode == "0") {
-	    	//check hash
+    	//if($vpc_TxnResponseCode == "0") { //check hash
 		    $responseHash = $this->getRequest()->getParam('vpc_SecureHash','');
 		    $SECURE_SECRET = $this->scopeConfig->getValue('payment/onepayinternational/hash_code');
 		    $responseParams = $this->getRequest()->getParams();
@@ -65,8 +64,8 @@ class PayInternational extends \Magento\Framework\App\Action\Action {
 				    if($this->checkoutSession->getLastOrderId() == $order->getId()) {
 					    $amount = $this->getRequest()->getParam('vpc_Amount','0');
 					    $order->setTotalPaid(floatval($amount)/100);
-					    //$order->setStatus($order::STATE_PAYMENT_REVIEW);
-						$order->setStatus("payment_oenpay_fail");
+					    //$order->setStatus($order::STATE_PAYMENT_REVIEW);$isSuccess = true; // TEST
+						$order->setStatus("payment_onepay_fail");
 					    $order->save();
 					    //$isSuccess = false;
 				    }
