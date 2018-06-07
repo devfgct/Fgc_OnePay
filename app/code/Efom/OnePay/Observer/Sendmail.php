@@ -48,7 +48,8 @@ class Sendmail implements ObserverInterface {
 		if ($order instanceof \Magento\Framework\Model\AbstractModel) {
 			$origData = $order->getOrigData();
 			$data = $order->getData();
-			$state = $order->getState();
+            $state = $order->getState();
+            $status = $order->getStatus();
 			$payment = $order->getPayment();
 			$method = $payment->getMethodInstance();
 			$this->_paymentCode = $method->getCode();
@@ -56,8 +57,10 @@ class Sendmail implements ObserverInterface {
 			if($event->getName()=='onepay_payment_status') {
 				$this->_orderStatus = $event->getStatus();
 				$this->checkAndSend($order);
-			} elseif(in_array($this->_paymentCode, $this->_paymentList)) {
-                // Disable send mail
+			} elseif(in_array($this->_paymentCode, $this->_paymentList) && $status == 'payment_onepay_fail') {
+                // Use if event not working in cronjob
+                $this->_orderStatus = false;
+                $this->checkAndSend($order);
                 return;
             }
 			return;

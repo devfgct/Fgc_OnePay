@@ -26,12 +26,13 @@ class Run {
 			$orderId = $order->getId();
 			$created_at = $order->getCreatedAt();
 			if(time() - strtotime($created_at) > 900) {
-				$order->setStatus("payment_oenpay_fail");
+				$order->setStatus("payment_onepay_fail");
 				$order->save();
-				$this->eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
+				// event not working
+				// $this->eventManager->dispatch('onepay_payment_status', ['status' => false, 'order' => $order]);
 				$message = "OnePay: Set orderId {$orderId} to status 'onepay_payment_status'.";
 			}
-			$message = "OnePay: ignore orderId {$orderId}.";
+			$message = "OnePay: ignore orderId {$orderId} ({$created_at}).";
 			$this->_logger->info($message);
 			continue;
 		}
