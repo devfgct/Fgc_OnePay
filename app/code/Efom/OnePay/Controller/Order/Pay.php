@@ -65,9 +65,8 @@ class Pay extends \Magento\Framework\App\Action\Action {
 				    if($this->checkoutSession->getLastOrderId() == $order->getId()) {
 					    $amount = $this->getRequest()->getParam('vpc_Amount','0');
 					    $order->setTotalPaid(floatval($amount)/100);
-					    //$order->setStatus($order::STATE_PAYMENT_REVIEW);
-					    //$order->setStatus($order::STATE_PAYMENT_REVIEW);
-						$order->setStatus("payment_oenpay_fail");
+					    //$order->setStatus($order::STATE_PAYMENT_REVIEW);$isSuccess = true; // TEST
+						$order->setStatus("payment_onepay_fail");
 					    $order->save();
 					    //$isSuccess = false;
 				    }
