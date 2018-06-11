@@ -1,14 +1,11 @@
 <?php
-
-
 namespace Efom\OnePay\Controller\Order;
 
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Model\ScopeInterface;
 
-class Info extends \Magento\Framework\App\Action\Action
-{
+class Info extends \Magento\Framework\App\Action\Action {
 	protected $resultPageFactory;
 	protected $jsonFac;
 	/** @var  \Magento\Sales\Model\Order */
@@ -29,8 +26,7 @@ class Info extends \Magento\Framework\App\Action\Action
 		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
 		\Magento\Store\Model\StoreManagerInterface $storeManager,
 		\Magento\Checkout\Model\Session $checkoutSession
-	)
-	{
+	) {
 		parent::__construct($context);
 		$this->resultPageFactory = $resultPageFactory;
 		$this->jsonFac = $json;

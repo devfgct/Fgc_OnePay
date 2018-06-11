@@ -7,8 +7,7 @@ namespace Efom\OnePay\Model;
  *
  * @method \Magento\Quote\Api\Data\PaymentMethodExtensionInterface getExtensionAttributes()
  */
-class OnePay extends \Magento\Payment\Model\Method\AbstractMethod
-{
+class OnePay extends \Magento\Payment\Model\Method\AbstractMethod {
     const PAYMENT_METHOD_ONEPAY_CODE = 'onepay';
 
     /**
@@ -24,6 +23,4 @@ class OnePay extends \Magento\Payment\Model\Method\AbstractMethod
      * @var bool
      */
     protected $_isOffline = true;
-
-
 }

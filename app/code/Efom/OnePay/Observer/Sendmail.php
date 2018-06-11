@@ -30,7 +30,6 @@ class Sendmail implements ObserverInterface {
 		$this->_helper = $helper;
         $this->_dir = $dir;
 		$this->_logger = $logger;
-		//$this->_logger->pushHandler(new \Monolog\Handler\StreamHandler($this->_dir->getRoot().'/var/log/onepay.log'));
         $this->_orderStatus = null;
 	}
     public function execute(\Magento\Framework\Event\Observer $observer) {

@@ -33,8 +33,6 @@ class Recurring implements InstallSchemaInterface {
      * @param ModuleContextInterface $context
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context) {
-        //$message = 'Version ' . $context->getVersion();
-        //$this->logger->notice($message);
         $this->insertEmailTemplates();
 	}
 

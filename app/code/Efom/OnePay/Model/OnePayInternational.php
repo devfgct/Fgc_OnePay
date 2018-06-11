@@ -7,8 +7,7 @@ namespace Efom\OnePay\Model;
  *
  * @method \Magento\Quote\Api\Data\PaymentMethodExtensionInterface getExtensionAttributes()
  */
-class OnePayInternational extends \Magento\Payment\Model\Method\AbstractMethod
-{
+class OnePayInternational extends \Magento\Payment\Model\Method\AbstractMethod {
     const PAYMENT_METHOD_ONEPAY_CODE = 'onepayinternational';
 
     /**
@@ -24,6 +23,5 @@ class OnePayInternational extends \Magento\Payment\Model\Method\AbstractMethod
      * @var bool
      */
     protected $_isOffline = true;
-
 
 }
